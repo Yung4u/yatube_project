@@ -26,6 +26,6 @@ class Post(models.Model):
         Group,
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
-        related_name='posts'
+        on_delete=models.SET_NULL,
+        related_name='post'
     )
