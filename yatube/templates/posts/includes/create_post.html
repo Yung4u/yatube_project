@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}
+{% if is_edit %}
+    Редактировать запись
+    {% else %}
+    Добавить запись
+{% endif %}
+{% endblock %}
+{% block content %}
+{% load user_filters %}
+<main>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 p-5">
+                <div class="card">
+                    <div class="card-header">
+                        {% if is_edit %}
+                            Редактировать пост
+                            {% else %}
+                            Новый пост
+                        {% endif %}
+                    </div>
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {{ field.label }}: {{ error|escape }}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                        <div class="card-body">
+                            <form method="post" action="{% if form.instance.id %}
+                                {% url 'posts:post_edit' post.id %}
+                            {% else %}
+                                {% url 'posts:post_create' %}
+                            {% endif %}">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="form-group row my-3">
+                                <label for="{{ field.id_for_label}}">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="required text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small id="{{ field.id_for_label }}-help"class="form-text text-muted">
+                                        {{ field.help_text|safe }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.id %}
+                                    Сохранить
+                                {% else %}
+                                    Добавить
+                                {% endif %}
+                            </button>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
