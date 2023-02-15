@@ -20,12 +20,6 @@
         <a class="nav-link {% if view_name  == '' %}active{% endif %}"
           href="{% url 'posts:post_create' %}">Новая запись</a>
       </li>
-      {% comment %}
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name  == 'users:password_reset_form' %}active{% endif %}" 
-        href="{% url 'users:password_reset_form' %}">Изменить пароль</a>
-      </li>
-      {% endcomment %}
       <li class="nav-item"> 
         <a class="nav-link {% if view_name  == 'users:logout' %}active{% endif %}" 
         href="{% url 'users:logout' %}">Выйти</a>
@@ -45,6 +39,5 @@
       {% endif %}
       {% endwith %} 
     </ul>
-    {# Конец добавленого в спринте #}
   </div>
 </nav>

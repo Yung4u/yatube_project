@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-{{ post.title|truncatechars:30}}
+  {{ post.title|truncatechars:30}}
 {% endblock title %}
 {% block content %}
 
@@ -16,7 +16,7 @@
             <li class="list-group-item">
               Группа:{{ group.title }}
               <a href="{% url 'posts:group_posts' post.group.slug %}">
-                все записи группы
+                все записи группы {{ group.title }}
               </a>
             </li>
             {% endif %}
@@ -36,7 +36,6 @@
         </aside>
         <article class="col-12 col-md-9">
           <p>{{ post.text|linebreaksbr }}</p>
-          {% comment %} {% if user.pk == post.author.pk %} {% endcomment %}
           {% if post.author == request.user %}
             <a class="btn btn-primary" href="{% url 'posts:post_edit' post.id %}">
               Редактировать запись

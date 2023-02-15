@@ -1,7 +1,3 @@
-# Dev/yatube_project/.gitignore
-
-.vscode/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,4 +127,22 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.css
+
+# Папки, создаваемые средой разработки
+.idea
+.DS_Store
+.AppleDouble
+.LSOverride
+
+*.sublime-project
+*.sublime-workspace
+
+.vscode/
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
+.mypy_cache
+
+static/css/bootstrap.min.css
