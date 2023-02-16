@@ -145,4 +145,14 @@ dmypy.json
 
 .mypy_cache
 
-static/css/bootstrap.min.css
+css/
+.bootstrap.min
+.bootstrap.min.*
+bootstrap.min.css
+*.bootstrap
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover 
