@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from posts.models import Post, Group, User
+from yatube.settings import POSTS_PER_PAGE
 
 
 User = get_user_model()
@@ -29,7 +30,7 @@ class PaginatorViewsTest(TestCase):
 
     def test_first_page_contains_ten_records(self):
         response = self.client.get(reverse('posts:index'))
-        expected = len(response.context['page_obj'][:10])
+        expected = len(response.context['page_obj'][:POSTS_PER_PAGE])
         self.assertEqual(len(response.context['page_obj']), expected)
 
     def test_second_page_contains_three_records(self):

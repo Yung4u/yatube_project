@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
-from django import forms  
+from django import forms
 from posts.models import Post, Group, User
 
 
@@ -38,7 +38,7 @@ class PostViewsTests(TestCase):
             first_object.author.username: 'auth',
             first_object.text: 'Тестовый пост',
             first_object.group.title: 'Тестовая группа',
-        }        
+        }
 
         for value, expected in form_fields.items():
             self.assertEqual(value, expected)
@@ -62,8 +62,9 @@ class PostViewsTests(TestCase):
 
     def test_post_detail_pages_show_correct_context(self):
         """Шаблон post_detail сформирован с правильным контекстом."""
-        response = (self.authorized_client.
-            get(reverse('posts:post_detail', kwargs={'post_id': self.post.id})))
+        response = (self.authorized_client.get(
+            reverse('posts:post_detail', kwargs={'post_id': self.post.id})
+        ))
         self.assertEqual(response.context['post'], self.post)
 
     def test_post_create_show_correct_context(self):

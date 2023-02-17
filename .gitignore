@@ -110,6 +110,18 @@ ENV/
 env.bak/
 venv.bak/
 
+css/
+.bootstrap.min
+.bootstrap.min.*
+bootstrap.min.css
+*.bootstrap
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -144,15 +156,3 @@ dmypy.json
 .history/
 
 .mypy_cache
-
-css/
-.bootstrap.min
-.bootstrap.min.*
-bootstrap.min.css
-*.bootstrap
-
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover 
