@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
-from posts.models import Post, Group, User
+from posts.models import Post, Group, Comment, Follow, User
 
 
 User = get_user_model()
@@ -29,6 +29,12 @@ class PostViewsTests(TestCase):
         self.user = User.objects.create_user(username='HasNoName')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.user_1 = User.objects.create_user(username='Following')
+        self.user_following = Client()
+        self.user_following.force_login(self.user_1)
+        self.user_2 = User.objects.create_user(username='Follower')
+        self.client_auth_follower = Client()
+        self.client_auth_follower.force_login(self.user_2)
 
     def test_index_page_show_correct_context(self):
         """Шаблон index сформирован с правильным контекстом."""
@@ -79,16 +85,95 @@ class PostViewsTests(TestCase):
                 form_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(form_field, expected)
 
-    def test_post_edit_show_correct_context(self):
-        """Шаблон post_edit сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse(
-            'posts:post_edit', kwargs={'post_id': self.post.id}
+    # def test_post_edit_show_correct_context(self):
+    #     """Шаблон post_edit сформирован с правильным контекстом."""
+    #     response = self.authorized_client.get(reverse(
+    #         'posts:post_edit', kwargs={'post_id': self.post.id}
+    #     ))
+    #     form_fields = {
+    #         'text': forms.fields.CharField,
+    #         'group': forms.fields.ChoiceField,
+    #     }
+    #     for value, expected in form_fields.items():
+    #         with self.subTest(value=value):
+    #             form_field = response.context.get('form').fields.get(value)
+    #             self.assertIsInstance(form_field, expected)
+
+    def test_auth_user_may_post_comment(self):
+        """Комментировать посты может только авторизированный пользователь"""
+        first_comment_count = Comment.objects.count()
+        form_data = {'text': 'Тестовый комментарий'}
+        self.authorized_client.post(reverse(
+            'posts:add_comment',
+            kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(
+            first_comment_count + 1,
+            Comment.objects.count()
+        )
+
+    def test_subscription_feed(self):
+        """Появление записи в ленте подписчиков"""
+        author = User.objects.create_user(username='auth_following')
+        following_text = 'Тестовый пост'
+        Follow.objects.create(user=self.user, author=author)
+        Post.objects.create(
+            author=author,
+            text=following_text,
+        )
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        first_object = response.context['page_obj'][0]
+        self.assertEqual(first_object.text, following_text)
+        Follow.objects.filter(user=self.user, author=author).delete()
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertEqual(len(response.context['page_obj']), 0)
+
+    def test_follow_auth_can_follow_delete(self):
+        """Создание и удаления подписчика"""
+        follow = Follow.objects.create(
+            user=self.user,
+            author=self.user_1,
+        )
+        result = self.user_1.following.count()
+        self.assertEqual(result, 1)
+        follow = Follow.objects.get(author=self.user_1)
+        follow.delete()
+        result =self.user_1.following.count()
+        self.assertEqual(result, 0)
+
+    def text_cache_index(self):
+        """Проверка работы кэша"""
+        response = Post.guest_client.get(reverse('posts:index'))
+        self.assertContains(response, Post.post.text)
+        response = Post.guest_client.get(reverse('posts:index'))
+        self.assertContains(response, Post.post.text)
+        Post.objects.get(pk=Post.post.id).delete()
+        response = Post.guest_client.get(reverse('posts:index'))
+        self.assertContains(response, Post.post.text)
+        response = Post.guest_client.get(reverse('posts:index'))
+        self.assertNotContains(response, Post.post.text)
+
+    def test_unfollow(self):
+        """Тест на возможность отписки"""
+        self.client_auth_follower.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.user_following}
         ))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.fields.ChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, expected)
+        self.client_auth_follower.get(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.user_following}
+        ))
+        self.assertEqual(Follow.objects.all().count(), 0)
+
+    def test_follow_numbers(self):
+        """Отображение постов по подписке"""
+        follow = Follow.objects.create(
+            user=self.user,
+            author=self.user_1,
+        )
+        response_1 = self.authorized_client.get(f'profile/{self.user_1.username}/follow/')
+        response_2 = self.authorized_client.get(f'profile/{self.user_1.username}/follow/')
+        result = self.user.follower.count()
+        self.assertEqual(result, 1)

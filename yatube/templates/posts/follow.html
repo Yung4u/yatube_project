@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Последние обновления на сайте
+{% endblock %}
+
+{% block content %}
+{% include 'posts/includes/switcher.html' %}
+    <h1>Посты авторов, на которых вы подписаны</h1>
+    {% if page_obj %}
+        {% for post in page_obj %}
+            {% include 'posts/includes/post_list.html' %}
+            {% if not forloop.last %}<hr>{% endif %}
+        {% endfor %}
+
+        {% include 'posts/includes/paginator.html' %}
+    {% else %}
+    <p>Вы не подписаны на авторов</p>
+    {% endif %}
+{% endblock %}
